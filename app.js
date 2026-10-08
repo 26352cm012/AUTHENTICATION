@@ -134,9 +134,12 @@ function moveButton(pointerX=null,pointerY=null){
   button.style.left=x+"px";
   button.style.top=y+"px";
 
-  status.textContent=round===1
-    ?"Keep trying to catch LOGIN."
-    :"Keep trying — Round 2.";
+  const encouragements=[
+    "KEEP TRYING!",
+    "YOU'RE GONNA LOGIN!",
+    "YOUR TRYING EFFORTS ARE NOT REACHABLE!"
+  ];
+  status.textContent=encouragements[(dodges-1)%encouragements.length];
 }
 
 function showSuccess(){
