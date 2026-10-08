@@ -4,6 +4,7 @@ const userPassword=document.getElementById("userPassword");
 const button=document.getElementById("loginButton");
 const zone=document.getElementById("buttonZone");
 const status=document.getElementById("status");
+const challengeMessage=document.getElementById("challengeMessage");
 const celebration=document.getElementById("celebration");
 const burst=document.getElementById("celebrationBurst");
 const successDetail=document.getElementById("successDetail");
@@ -40,6 +41,7 @@ function setReadyState(){
   if(!fieldsReady()){
     stopAutoMove();
     active=false;
+    challengeMessage.textContent="KEEP TRYING!";
     status.textContent=round===1
       ?"Fill in both fields to begin."
       :"Fill in both fields to begin round 2.";
@@ -48,6 +50,7 @@ function setReadyState(){
   }
 
   active=true;
+  challengeMessage.textContent="KEEP TRYING!";
   status.textContent=round===1
     ?"Round 1 started — try to catch LOGIN."
     :"Round 2 started — this is the patience test.";
@@ -125,6 +128,7 @@ function moveButton(pointerX=null,pointerY=null){
     stopAutoMove();
     button.style.left="0px";
     button.style.top="14px";
+    challengeMessage.textContent="YOU'RE GONNA LOGIN!";
     status.textContent="Okay... LOGIN is yours.";
     status.style.color="#151922";
     return;
