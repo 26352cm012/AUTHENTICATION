@@ -12,6 +12,10 @@ let lastMove=0;
 let active=false;
 let completed=false;
 
+// Slower reaction, but each dodge travels a long distance.
+const DODGE_DELAY=150;
+const DODGE_TRIGGER=185;
+
 const firstRoundMessages=[
   "Try to catch the login button.",
   "Too slow.",
@@ -29,6 +33,7 @@ function fieldsReady(){
 function setReadyState(){
   if(completed)return;
   active=fieldsReady();
+
   if(round===1){
     if(active){
       status.textContent="Now try to catch LOGIN.";
@@ -46,13 +51,44 @@ function setReadyState(){
   }
 }
 
+// Pick the destination farthest away from the pointer/current position.
+// This makes each jump large instead of twitchy.
+function getFarDestination(pointerX,pointerY){
+  const maxX=Math.max(0,zone.clientWidth-button.offsetWidth);
+  const maxY=Math.max(0,zone.clientHeight-button.offsetHeight);
+  const rect=zone.getBoundingClientRect();
+
+  const px=pointerX==null?zone.clientWidth/2:pointerX-rect.left;
+  const py=pointerY==null?zone.clientHeight/2:pointerY-rect.top;
+
+  const candidates=[
+    [0,0],[maxX,0],[0,maxY],[maxX,maxY],
+    [maxX/2,0],[maxX/2,maxY],[0,maxY/2],[maxX,maxY/2]
+  ];
+
+  let best=candidates[0];
+  let bestDistance=-1;
+
+  for(const [x,y] of candidates){
+    const distance=Math.hypot(x+button.offsetWidth/2-px,y+button.offsetHeight/2-py);
+    if(distance>bestDistance){
+      best=[x,y];
+      bestDistance=distance;
+    }
+  }
+
+  return best;
+}
+
 function moveButton(pointerX,pointerY){
   if(!active || completed)return;
+
   const now=performance.now();
-  if(now-lastMove<18)return;
+  if(now-lastMove<DODGE_DELAY)return;
   lastMove=now;
   dodges++;
 
+  // In round 1, after several fair dodges, the player gets a chance to click.
   if(round===1 && dodges>=7){
     active=false;
     button.style.left="0px";
@@ -63,26 +99,11 @@ function moveButton(pointerX,pointerY){
     return;
   }
 
-  const maxX=Math.max(0,zone.clientWidth-button.offsetWidth);
-  const maxY=Math.max(0,zone.clientHeight-button.offsetHeight);
-  const rect=zone.getBoundingClientRect();
-  const px=pointerX==null?null:pointerX-rect.left;
-  const py=pointerY==null?null:pointerY-rect.top;
-
-  let x=0,y=0;
-  for(let i=0;i<40;i++){
-    const tx=Math.random()*maxX;
-    const ty=Math.random()*maxY;
-    if(px==null || Math.hypot(tx+button.offsetWidth/2-px,ty+button.offsetHeight/2-py)>165){
-      x=tx;
-      y=ty;
-      break;
-    }
-  }
+  const [x,y]=getFarDestination(pointerX,pointerY);
 
   button.style.left=x+"px";
   button.style.top=y+"px";
-  button.style.transform="scale("+(.82+Math.random()*.12)+")";
+  button.style.transform="scale(1)";
 
   if(round===1){
     status.textContent=firstRoundMessages[Math.min(dodges,firstRoundMessages.length-2)];
@@ -91,32 +112,22 @@ function moveButton(pointerX,pointerY){
   }
 }
 
-function successfulLogin(){
-  if(round!==1 || completed)return;
-  completed=true;
-  active=false;
-  button.style.pointerEvents="none";
-  button.style.left="0px";
-  button.style.top="14px";
-  button.style.transform="scale(1)";
-  status.textContent="you are successfully logined to the website in less attempts";
-  status.style.color="#151922";
-  retryButton.hidden=false;
-}
-
 document.addEventListener("mousemove",(event)=>{
   if(!active || completed)return;
+
   const r=button.getBoundingClientRect();
   const distance=Math.hypot(
     event.clientX-(r.left+r.width/2),
     event.clientY-(r.top+r.height/2)
   );
-  if(distance<190)moveButton(event.clientX,event.clientY);
+
+  if(distance<DODGE_TRIGGER){
+    moveButton(event.clientX,event.clientY);
+  }
 });
 
 button.addEventListener("mouseenter",(event)=>{
-  if(round===1 && active)moveButton(event.clientX,event.clientY);
-  if(round===2 && active)moveButton(event.clientX,event.clientY);
+  moveButton(event.clientX,event.clientY);
 });
 
 button.addEventListener("pointerdown",(event)=>{
@@ -143,7 +154,24 @@ form.addEventListener("submit",(event)=>{
   }
 });
 
-[userId,userPassword].forEach(input=>input.addEventListener("input",setReadyState));
+function successfulLogin(){
+  if(round!==1 || completed)return;
+
+  completed=true;
+  active=false;
+  button.style.pointerEvents="none";
+  button.style.left="0px";
+  button.style.top="14px";
+  button.style.transform="scale(1)";
+
+  status.textContent="you are successfully logined to the website in less attempts";
+  status.style.color="#151922";
+  retryButton.hidden=false;
+}
+
+[userId,userPassword].forEach(input=>{
+  input.addEventListener("input",setReadyState);
+});
 
 retryButton.addEventListener("click",()=>{
   round=2;
@@ -151,10 +179,12 @@ retryButton.addEventListener("click",()=>{
   completed=false;
   active=false;
   retryButton.hidden=true;
+
   button.style.pointerEvents="auto";
   button.style.left="0px";
   button.style.top="14px";
   button.style.transform="scale(1)";
+
   form.reset();
   status.textContent="Round 2: fill in both fields.";
   status.style.color="#687282";
