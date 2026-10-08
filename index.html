@@ -81,8 +81,8 @@ textarea{width:100%;min-height:92px;resize:vertical;margin-top:9px;padding:12px;
 </div>
 
 <script>
-const id=document.getElementById("id");
-const pw=document.getElementById("pw");
+const idInput=document.getElementById("id");
+const passwordInput=document.getElementById("pw");
 const zone=document.getElementById("zone");
 const login=document.getElementById("login");
 const challenge=document.getElementById("challenge");
@@ -96,93 +96,135 @@ const reviewText=document.getElementById("reviewText");
 const reviewSend=document.getElementById("reviewSend");
 const reviewResult=document.getElementById("reviewResult");
 
-let round=1, dodges=0, active=false, completed=false, lastDodge=0;
+let round=1;
+let dodges=0;
+let active=false;
+let completed=false;
+let lastDodgeTime=0;
 
-const targets={1:120,2:240};
-const encouragements=[
-  "KEEP TRYING!",
-  "YOU'RE GONNA LOGIN!",
-  "YOUR TRYING EFFORTS ARE NOT REACHABLE!"
-];
+const LIMITS={1:120,2:240};
+const DODGE_COOLDOWN=260;
+const DODGE_RADIUS=260;
 
-function ready(){return id.value.trim()!==""&&pw.value.trim()!==""}
+function ready(){
+  return idInput.value.trim()!=="" && passwordInput.value.trim()!=="";
+}
 
-function refresh(){
+function updateReadyState(){
   if(completed)return;
+
   if(!ready()){
     active=false;
     challenge.textContent="KEEP TRYING!";
-    status.textContent=round===1?"Fill in both fields to begin.":"Fill in both fields to begin round 2.";
+    status.textContent=round===1
+      ?"Fill in both fields to begin."
+      :"Fill in both fields to begin round 2.";
     return;
   }
+
   active=true;
-  challenge.textContent="KEEP TRYING!";
-  status.textContent=round===1?"Round 1: move toward LOGIN.":"Round 2: move toward LOGIN.";
+  challenge.textContent=round===1
+    ?"KEEP TRYING!"
+    :"ROUND 2 — KEEP TRYING!";
+  status.textContent="Move your pointer toward LOGIN.";
 }
 
-function farPoint(px,py){
+function getFarPosition(pointerX,pointerY){
   const maxX=Math.max(0,zone.clientWidth-login.offsetWidth);
   const maxY=Math.max(0,zone.clientHeight-login.offsetHeight);
   const rect=zone.getBoundingClientRect();
-  const x=px-rect.left,y=py-rect.top;
+
+  const px=pointerX-rect.left;
+  const py=pointerY-rect.top;
 
   const points=[
     [0,0],[maxX,0],[0,maxY],[maxX,maxY],
-    [maxX*.08,maxY*.2],[maxX*.92,maxY*.2],
-    [maxX*.08,maxY*.8],[maxX*.92,maxY*.8]
+    [maxX*.05,maxY*.25],[maxX*.95,maxY*.25],
+    [maxX*.05,maxY*.75],[maxX*.95,maxY*.75],
+    [maxX*.25,0],[maxX*.75,0],
+    [maxX*.25,maxY],[maxX*.75,maxY],
+    [0,maxY*.5],[maxX,maxY*.5]
   ];
 
-  points.sort((a,b)=>{
-    const da=Math.hypot(a[0]+login.offsetWidth/2-x,a[1]+login.offsetHeight/2-y);
-    const db=Math.hypot(b[0]+login.offsetWidth/2-x,b[1]+login.offsetHeight/2-y);
-    return db-da;
-  });
+  const ranked=points
+    .map(point=>({
+      point,
+      distance:Math.hypot(
+        point[0]+login.offsetWidth/2-px,
+        point[1]+login.offsetHeight/2-py
+      )
+    }))
+    .sort((a,b)=>b.distance-a.distance);
 
-  return points[Math.floor(Math.random()*Math.min(2,points.length))];
+  // Pick from the farthest few points so it feels natural rather than identical.
+  return ranked[Math.floor(Math.random()*Math.min(3,ranked.length))].point;
 }
 
-function dodge(px,py){
+function dodge(pointerX,pointerY){
   if(!active||completed)return;
+
   const now=performance.now();
-  if(now-lastDodge<320)return;
-  lastDodge=now;
+  if(now-lastDodgeTime<DODGE_COOLDOWN)return;
+  lastDodgeTime=now;
+
   dodges++;
+  const limit=LIMITS[round];
 
-  const limit=targets[round];
-
-  if(dodges>=limit){
+  if(dodges>limit){
     active=false;
     login.style.left="0px";
     login.style.top="14px";
     challenge.textContent="YOU'RE GONNA LOGIN!";
-    status.textContent="The button is finally ready.";
+    status.textContent="Okay... LOGIN is finally yours.";
     return;
   }
 
-  const [x,y]=farPoint(px,py);
+  const [x,y]=getFarPosition(pointerX,pointerY);
   login.style.left=x+"px";
   login.style.top=y+"px";
-  challenge.textContent=encouragements[(dodges-1)%encouragements.length];
-  status.textContent=round===1
-    ?"Keep chasing LOGIN."
-    :"Round 2: keep chasing LOGIN.";
+
+  const messages=[
+    "KEEP TRYING!",
+    "YOU'RE GONNA LOGIN!",
+    "YOUR TRYING EFFORTS ARE NOT REACHABLE!"
+  ];
+  challenge.textContent=messages[(dodges-1)%messages.length];
 }
 
-document.addEventListener("mousemove",e=>{
+function checkPointer(pointerX,pointerY){
   if(!active||completed)return;
-  const r=login.getBoundingClientRect();
-  const d=Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));
-  if(d<220)dodge(e.clientX,e.clientY);
-});
+
+  const rect=login.getBoundingClientRect();
+  const distance=Math.hypot(
+    pointerX-(rect.left+rect.width/2),
+    pointerY-(rect.top+rect.height/2)
+  );
+
+  if(distance<DODGE_RADIUS){
+    dodge(pointerX,pointerY);
+  }
+}
+
+// Both events are supported for better browser compatibility.
+window.addEventListener("pointermove",e=>checkPointer(e.clientX,e.clientY),{passive:true});
+window.addEventListener("mousemove",e=>checkPointer(e.clientX,e.clientY),{passive:true});
+
+login.addEventListener("pointerenter",e=>dodge(e.clientX,e.clientY));
 
 login.addEventListener("pointerdown",e=>{
   e.preventDefault();
+  e.stopPropagation();
+
   if(!ready()){
     status.textContent="Enter your ID and password first.";
     return;
   }
-  if(active)dodge(e.clientX,e.clientY);
-  else finishRound();
+
+  if(active){
+    dodge(e.clientX,e.clientY);
+  }else{
+    finishRound();
+  }
 });
 
 function finishRound(){
@@ -192,31 +234,66 @@ function finishRound(){
   successInfo.textContent=round===1
     ?"Round 1 complete. Patience level: impressive."
     :"Round 2 complete. Absolute patience.";
-  retry.hidden=round===2;
-  review.hidden=round!==2;
+
+  const finalRound=round===2;
+  retry.hidden=finalRound;
+  review.hidden=!finalRound;
+
   celebrate.hidden=false;
-  blast(false);
+  blast();
+}
+
+function blast(){
+  balloons.replaceChildren();
+
+  const colors=[
+    "#111827","#475569","#64748b","#94a3b8",
+    "#7c3aed","#06b6d4","#f59e0b","#ec4899"
+  ];
+
+  for(let i=0;i<42;i++){
+    const b=document.createElement("span");
+    b.className="b";
+
+    const angle=(Math.PI*2*i/42)+(Math.random()-.5)*.3;
+    const distance=260+Math.random()*560;
+
+    b.style.setProperty("--x",Math.cos(angle)*distance+"px");
+    b.style.setProperty("--y",(-Math.abs(Math.sin(angle)*distance)-110-Math.random()*220)+"px");
+    b.style.setProperty("--r",(Math.random()*100-50)+"deg");
+    b.style.background=colors[i%colors.length];
+    b.style.animationDelay=(Math.random()*.18)+"s";
+
+    balloons.appendChild(b);
+  }
 }
 
 function resetRoundTwo(){
   celebrate.hidden=true;
   balloons.replaceChildren();
-  reviewText.value="";
-  reviewResult.textContent="";
-  reviewSend.hidden=false;
-  reviewText.disabled=false;
+
   round=2;
   dodges=0;
   active=false;
   completed=false;
-  lastDodge=0;
+  lastDodgeTime=0;
+
   login.style.pointerEvents="auto";
   login.style.left="0px";
   login.style.top="14px";
-  id.value="";
-  pw.value="";
-  refresh();
-  id.focus();
+
+  idInput.value="";
+  passwordInput.value="";
+
+  review.hidden=true;
+  reviewText.value="";
+  reviewResult.textContent="";
+  reviewSend.hidden=false;
+  reviewText.disabled=false;
+
+  challenge.textContent="KEEP TRYING!";
+  status.textContent="Round 2: fill in both fields.";
+  idInput.focus();
 }
 
 retry.addEventListener("click",resetRoundTwo);
@@ -230,57 +307,48 @@ reviewSend.addEventListener("click",()=>{
   reviewResult.textContent="YOUR REVIEW SENT SUCCESSFULLY";
   reviewSend.hidden=true;
   reviewText.disabled=true;
-  blast(true);
+  createThankYouBlast();
 });
 
-function blast(reviewBlast){
-  balloons.replaceChildren();
+function createThankYouBlast(){
+  const old=document.querySelector(".thanks");
+  if(old)old.remove();
 
-  const colors=["#111827","#475569","#64748b","#94a3b8","#7c3aed","#06b6d4","#f59e0b","#ec4899"];
-  for(let i=0;i<42;i++){
+  const overlay=document.createElement("div");
+  overlay.className="thanks";
+
+  const title=document.createElement("div");
+  title.className="thanks-title";
+  title.textContent="THANK YOU";
+  overlay.appendChild(title);
+
+  document.body.appendChild(overlay);
+
+  const colors=["#111827","#475569","#7c3aed","#06b6d4","#f59e0b","#ec4899"];
+
+  for(let i=0;i<40;i++){
     const b=document.createElement("span");
     b.className="b";
-    const angle=(Math.PI*2*i/42)+(Math.random()-.5)*.3;
-    const distance=260+Math.random()*560;
+
+    const angle=(Math.PI*2*i/40)+(Math.random()-.5)*.3;
+    const distance=260+Math.random()*600;
+
     b.style.setProperty("--x",Math.cos(angle)*distance+"px");
-    b.style.setProperty("--y",(-Math.abs(Math.sin(angle)*distance)-110-Math.random()*220)+"px");
+    b.style.setProperty("--y",Math.sin(angle)*distance-60-Math.random()*220+"px");
     b.style.setProperty("--r",(Math.random()*100-50)+"deg");
     b.style.background=colors[i%colors.length];
-    b.style.animationDelay=(Math.random()*.18)+"s";
-    balloons.appendChild(b);
+
+    overlay.appendChild(b);
   }
 
-  if(reviewBlast){
-    const old=document.querySelector(".thanks");
-    if(old)old.remove();
-
-    const overlay=document.createElement("div");
-    overlay.className="thanks";
-    const title=document.createElement("div");
-    title.className="thanks-title";
-    title.textContent="THANK YOU";
-    overlay.appendChild(title);
-    document.body.appendChild(overlay);
-
-    for(let i=0;i<36;i++){
-      const b=document.createElement("span");
-      b.className="b";
-      const angle=(Math.PI*2*i/36)+(Math.random()-.5)*.3;
-      const distance=260+Math.random()*600;
-      b.style.setProperty("--x",Math.cos(angle)*distance+"px");
-      b.style.setProperty("--y",Math.sin(angle)*distance-60-Math.random()*220+"px");
-      b.style.setProperty("--r",(Math.random()*100-50)+"deg");
-      b.style.background=colors[i%colors.length];
-      b.style.animationDelay=(Math.random()*.25)+"s";
-      overlay.appendChild(b);
-    }
-
-    setTimeout(()=>overlay.remove(),3600);
-  }
+  setTimeout(()=>overlay.remove(),3600);
 }
 
-[id,pw].forEach(el=>el.addEventListener("input",refresh));
-refresh();
+[idInput,passwordInput].forEach(input=>{
+  input.addEventListener("input",updateReadyState);
+});
+
+updateReadyState();
 </script>
 </body>
 </html>
