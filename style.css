@@ -31,3 +31,11 @@ input:focus{border-color:#6f7785;box-shadow:0 0 0 4px #10131a0b}
 @keyframes sparkBlast{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}15%{opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(0);opacity:0}}
 @keyframes successIn{0%{transform:translateY(20px) scale(.94);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
 @media(max-width:520px){.panel{padding:32px 24px}.mark{margin-bottom:28px}.button-zone{height:200px}}
+
+.review{margin-top:26px;padding-top:22px;border-top:1px solid #e1e4e8;text-align:left}
+.review strong{display:block;text-align:center;font-size:18px;font-weight:900;color:#11151c}
+.review p{margin:9px 0;color:#687282;font-size:12px}
+#reviewText{width:100%;min-height:92px;resize:vertical;padding:12px;border:1px solid #c9ced7;border-radius:10px;background:#fff;color:#151922;font:inherit;font-size:13px;outline:none}
+#reviewText:focus{border-color:#6f7785;box-shadow:0 0 0 3px #10131a0b}
+.submit-review{margin-top:10px;width:100%;padding:12px;border:0;border-radius:10px;background:#10131a;color:#fff;font:inherit;font-size:11px;font-weight:900;letter-spacing:.08em;cursor:pointer}
+.review-message{text-align:center;margin-bottom:0!important;min-height:16px}
