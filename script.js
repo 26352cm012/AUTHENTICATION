@@ -8,6 +8,10 @@ const celebration=document.getElementById("celebration");
 const burst=document.getElementById("celebrationBurst");
 const successDetail=document.getElementById("successDetail");
 const againButton=document.getElementById("againButton");
+const reviewBox=document.getElementById("reviewBox");
+const reviewText=document.getElementById("reviewText");
+const submitReview=document.getElementById("submitReview");
+const reviewMessage=document.getElementById("reviewMessage");
 
 let round=1;
 let dodges=0;
@@ -110,8 +114,9 @@ function showSuccess(){
     ?"Round 2 complete. Absolute patience."
     :"Round 1 complete. Patience level: impressive.";
 
-  // Retry is offered only after Round 1.
+  // Retry is offered only after Round 1. Round 2 is the true ending.
   againButton.hidden=finalRound;
+  reviewBox.hidden=!finalRound;
   celebration.hidden=false;
   createBalloonBlast();
 }
@@ -159,6 +164,10 @@ function createBalloonBlast(){
 
 function resetForRoundTwo(){
   celebration.hidden=true;
+  reviewBox.hidden=true;
+  reviewText.value="";
+  reviewMessage.textContent="";
+  submitReview.disabled=false;
   burst.replaceChildren();
   againButton.hidden=true;
 
@@ -229,5 +238,15 @@ form.addEventListener("submit",(event)=>{
 });
 
 againButton.addEventListener("click",resetForRoundTwo);
+
+submitReview.addEventListener("click",()=>{
+  const review=reviewText.value.trim();
+  reviewMessage.textContent=review
+    ?"Thanks for the review! 🎈"
+    :"Please write a review first.";
+  if(review){
+    submitReview.disabled=true;
+  }
+});
 
 setReadyState();
