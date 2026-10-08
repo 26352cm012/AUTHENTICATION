@@ -135,8 +135,8 @@ function moveButton(pointerX=null,pointerY=null){
   button.style.top=y+"px";
 
   status.textContent=round===1
-    ?`Patience check: ${dodges}/${target}`
-    :`Round 2 patience: ${dodges}/${target}`;
+    ?"Keep trying to catch LOGIN."
+    :"Keep trying — Round 2.";
 }
 
 function showSuccess(){
