@@ -4,7 +4,10 @@ const userPassword=document.getElementById("userPassword");
 const button=document.getElementById("loginButton");
 const zone=document.getElementById("buttonZone");
 const status=document.getElementById("status");
-const retryButton=document.getElementById("retryButton");
+const celebration=document.getElementById("celebration");
+const burst=document.getElementById("celebrationBurst");
+const successDetail=document.getElementById("successDetail");
+const againButton=document.getElementById("againButton");
 
 let round=1;
 let dodges=0;
@@ -12,43 +15,28 @@ let lastMove=0;
 let active=false;
 let completed=false;
 
-// Deliberately slower reaction, but with a much larger dodge area.
-const DODGE_DELAY=110;
-const DODGE_TRIGGER=270;
-const FIRST_ROUND_DODGES=12;
-
-const firstRoundMessages=[
-  "Try to catch the login button.",
-  "Too slow.",
-  "Nice try.",
-  "Almost.",
-  "Keep going.",
-  "You're getting closer.",
-  "Not yet.",
-  "Still chasing?",
-  "That was close.",
-  "One more try.",
-  "Almost there.",
-  "Okay... you can click it now."
-];
+const FIRST_ROUND_DODGES=120;
+const SECOND_ROUND_DODGES=240;
+const DODGE_DELAY=180;
+const DODGE_TRIGGER=280;
 
 function fieldsReady(){
-  return userId.value.trim()!=="" && userPassword.value.trim()!=="";
+  return userId.value.trim()!==""&&userPassword.value.trim()!=="";
 }
 
 function setReadyState(){
   if(completed)return;
   active=fieldsReady();
-
-  if(round===1){
-    status.textContent=active
-      ?"Now try to catch LOGIN."
-      :"Fill in both fields to begin.";
-  }else{
-    status.textContent=active
-      ?"Round 2. Catch it if you can."
+  if(!active){
+    status.textContent=round===1
+      ?"Fill in both fields to begin."
       :"Fill in both fields to begin round 2.";
+    status.style.color="#687282";
+    return;
   }
+  status.textContent=round===1
+    ?"Round 1: catch LOGIN."
+    :"Round 2: catch LOGIN. This is the patience test.";
   status.style.color="#687282";
 }
 
@@ -56,15 +44,16 @@ function getFarDestination(pointerX,pointerY){
   const maxX=Math.max(0,zone.clientWidth-button.offsetWidth);
   const maxY=Math.max(0,zone.clientHeight-button.offsetHeight);
   const rect=zone.getBoundingClientRect();
-
   const px=pointerX==null?zone.clientWidth/2:pointerX-rect.left;
   const py=pointerY==null?zone.clientHeight/2:pointerY-rect.top;
 
   const candidates=[
     [0,0],[maxX,0],[0,maxY],[maxX,maxY],
-    [maxX*.15,maxY*.15],[maxX*.85,maxY*.15],
-    [maxX*.15,maxY*.85],[maxX*.85,maxY*.85],
-    [maxX*.5,0],[maxX*.5,maxY],[0,maxY*.5],[maxX,maxY*.5]
+    [maxX*.08,maxY*.42],[maxX*.92,maxY*.42],
+    [maxX*.28,0],[maxX*.72,0],
+    [maxX*.28,maxY],[maxX*.72,maxY],
+    [0,maxY*.18],[0,maxY*.82],
+    [maxX,maxY*.18],[maxX,maxY*.82]
   ];
 
   let best=candidates[0];
@@ -80,7 +69,6 @@ function getFarDestination(pointerX,pointerY){
       bestDistance=distance;
     }
   }
-
   return best;
 }
 
@@ -92,13 +80,13 @@ function moveButton(pointerX,pointerY){
   lastMove=now;
   dodges++;
 
-  // First round becomes clickable only after a substantial number of dodges.
-  if(round===1&&dodges>FIRST_ROUND_DODGES){
+  const target=round===1?FIRST_ROUND_DODGES:SECOND_ROUND_DODGES;
+
+  if(dodges>target){
     active=false;
     button.style.left="0px";
     button.style.top="14px";
-    button.style.transform="scale(1)";
-    status.textContent="Okay... you can click it now.";
+    status.textContent="Okay... LOGIN is yours.";
     status.style.color="#151922";
     return;
   }
@@ -106,28 +94,78 @@ function moveButton(pointerX,pointerY){
   const [x,y]=getFarDestination(pointerX,pointerY);
   button.style.left=x+"px";
   button.style.top=y+"px";
-  button.style.transform="scale(1)";
 
-  if(round===1){
-    status.textContent=firstRoundMessages[Math.min(dodges,firstRoundMessages.length-2)];
-  }else{
-    status.textContent="Nope. Round 2 keeps escaping.";
-  }
+  status.textContent=round===1
+    ?`Patience check: ${dodges}/${target}`
+    :`Round 2 patience: ${dodges}/${target}`;
 }
 
-function successfulLogin(){
-  if(round!==1||completed)return;
-
+function showSuccess(){
   completed=true;
   active=false;
   button.style.pointerEvents="none";
+  status.textContent="Success.";
+  successDetail.textContent=round===1
+    ?"Round 1 complete. Patience level: impressive."
+    :"Round 2 complete. Absolute patience.";
+  celebration.hidden=false;
+  createBalloonBlast();
+}
+
+function createBalloonBlast(){
+  burst.replaceChildren();
+
+  const balloonCount=34;
+  for(let i=0;i<balloonCount;i++){
+    const balloon=document.createElement("span");
+    balloon.className="balloon";
+    const angle=(Math.PI*2*i/balloonCount)+(Math.random()-.5)*.25;
+    const distance=260+Math.random()*520;
+    const x=Math.cos(angle)*distance;
+    const y=-Math.abs(Math.sin(angle)*distance)-120-Math.random()*220;
+    const rotation=(Math.random()*90)-45;
+
+    balloon.style.setProperty("--x",x+"px");
+    balloon.style.setProperty("--y",y+"px");
+    balloon.style.setProperty("--r",rotation+"deg");
+
+    const colors=["#111827","#475569","#64748b","#94a3b8","#cbd5e1","#7c3aed","#06b6d4","#f59e0b"];
+    const color=colors[i%colors.length];
+    balloon.style.background=color;
+    balloon.style.color=color;
+
+    balloon.style.animationDelay=(Math.random()*.18)+"s";
+    burst.appendChild(balloon);
+  }
+
+  for(let i=0;i<18;i++){
+    const spark=document.createElement("span");
+    spark.className="spark";
+    const angle=Math.random()*Math.PI*2;
+    const distance=120+Math.random()*260;
+    spark.style.setProperty("--sx",Math.cos(angle)*distance+"px");
+    spark.style.setProperty("--sy",Math.sin(angle)*distance+"px");
+    spark.style.animationDelay=(Math.random()*.15)+"s";
+    burst.appendChild(spark);
+  }
+}
+
+function resetForRoundTwo(){
+  celebration.hidden=true;
+  burst.replaceChildren();
+  round=2;
+  dodges=0;
+  lastMove=0;
+  completed=false;
+  active=false;
+  button.style.pointerEvents="auto";
   button.style.left="0px";
   button.style.top="14px";
-  button.style.transform="scale(1)";
-
-  status.textContent="you are successfully logined to the website in less attempts";
-  status.style.color="#151922";
-  retryButton.hidden=false;
+  userId.value="";
+  userPassword.value="";
+  status.textContent="Round 2: fill in both fields.";
+  status.style.color="#687282";
+  userId.focus();
 }
 
 document.addEventListener("mousemove",(event)=>{
@@ -139,7 +177,6 @@ document.addEventListener("mousemove",(event)=>{
     event.clientY-(r.top+r.height/2)
   );
 
-  // Detect the pointer well before it reaches the button.
   if(distance<DODGE_TRIGGER){
     moveButton(event.clientX,event.clientY);
   }
@@ -154,11 +191,10 @@ button.addEventListener("pointerdown",(event)=>{
   event.stopPropagation();
 
   if(round===1&&fieldsReady()&&!active){
-    successfulLogin();
-    return;
-  }
-
-  if(round===2&&fieldsReady()){
+    showSuccess();
+  }else if(round===2&&fieldsReady()&&!active){
+    showSuccess();
+  }else if(active){
     moveButton(event.clientX,event.clientY);
   }
 });
@@ -166,9 +202,15 @@ button.addEventListener("pointerdown",(event)=>{
 form.addEventListener("submit",(event)=>{
   event.preventDefault();
 
-  if(round===1&&fieldsReady()&&!active){
-    successfulLogin();
-  }else if(round===2&&fieldsReady()){
+  if(!fieldsReady()){
+    status.textContent="Please fill in both fields.";
+    status.style.color="#687282";
+    return;
+  }
+
+  if(!active){
+    showSuccess();
+  }else{
     moveButton();
   }
 });
@@ -177,20 +219,6 @@ form.addEventListener("submit",(event)=>{
   input.addEventListener("input",setReadyState);
 });
 
-retryButton.addEventListener("click",()=>{
-  round=2;
-  dodges=0;
-  completed=false;
-  active=false;
-  retryButton.hidden=true;
-  button.style.pointerEvents="auto";
-  button.style.left="0px";
-  button.style.top="14px";
-  button.style.transform="scale(1)";
-  form.reset();
-  status.textContent="Round 2: fill in both fields.";
-  status.style.color="#687282";
-  userId.focus();
-});
+againButton.addEventListener("click",resetForRoundTwo);
 
 setReadyState();
