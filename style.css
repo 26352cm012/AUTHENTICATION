@@ -41,3 +41,8 @@ input:focus{border-color:#6f7785;box-shadow:0 0 0 4px #10131a0b}
 .review-message{text-align:center;margin-bottom:0!important;min-height:16px}
 
 .review-message.thanks{font-size:24px!important;font-weight:950!important;letter-spacing:.08em;color:#11151c!important;margin-top:18px!important}
+
+.thank-you-overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;pointer-events:none;overflow:hidden}
+.thank-you-title{position:relative;z-index:4;padding:18px 26px;border-radius:18px;background:#fffffff2;color:#11151c;font-size:clamp(42px,10vw,84px);font-weight:1000;letter-spacing:-.06em;box-shadow:0 20px 70px #66708555;animation:thankYouPop .7s cubic-bezier(.2,.9,.2,1) both}
+.thank-balloon{left:50%;bottom:50%;width:44px;height:57px;animation-duration:3.4s}
+@keyframes thankYouPop{0%{transform:scale(.55) translateY(18px);opacity:0}70%{transform:scale(1.08) translateY(0);opacity:1}100%{transform:scale(1);opacity:1}}
