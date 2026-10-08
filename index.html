@@ -2,53 +2,285 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AUTHENTICATION</title>
-<link rel="stylesheet" href="style.css?v=20261008c">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;background:linear-gradient(135deg,#eef1f5,#dce2ea);color:#11151c;overflow:hidden}
+.page{min-height:100vh;display:grid;place-items:center;padding:24px}
+.panel{width:min(480px,100%);padding:44px;border:1px solid #fff;border-radius:24px;background:#ffffffdc;box-shadow:0 28px 80px #6670853b;backdrop-filter:blur(18px)}
+.mark{font-size:10px;font-weight:900;letter-spacing:.24em;color:#7b8493;margin-bottom:30px}
+h1{margin:0;font-size:clamp(34px,8vw,50px);line-height:.98;letter-spacing:-.055em}
+.prompt{margin:14px 0 30px;font-size:13px;color:#687282}
+label{display:block;margin:17px 0 8px;font-size:11px;font-weight:850;letter-spacing:.14em;color:#4d5665}
+input{width:100%;height:52px;padding:0 15px;border:1px solid #c9ced7;border-radius:11px;background:#fff;color:#151922;outline:0;font:inherit}
+input:focus{border-color:#697383;box-shadow:0 0 0 4px #10131a0b}
+.zone{position:relative;height:220px;margin-top:24px}
+#login{position:absolute;left:0;top:14px;padding:14px 22px;border:0;border-radius:10px;background:#10131a;color:#fff;font:inherit;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;transition:left .28s ease-out,top .28s ease-out;z-index:3}
+.challenge{min-height:52px;display:grid;place-items:center;padding:10px 12px;border:1px solid #d5dae2;border-radius:10px;background:#f8fafc;text-align:center;font-size:14px;font-weight:950;line-height:1.2}
+.status{text-align:center;min-height:18px;margin:9px 0 0;color:#8a92a0;font-size:10px}
+.note{margin-top:25px;padding-top:15px;border-top:1px solid #dce0e6;color:#8a92a0;font-size:8px;letter-spacing:.15em;line-height:1.5}
+.celebrate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#eef1f5ef;backdrop-filter:blur(7px);overflow:hidden}
+.celebrate[hidden]{display:none}
+.card{position:relative;z-index:5;width:min(610px,calc(100% - 34px));padding:40px 32px;text-align:center;border:1px solid #fff;border-radius:24px;background:#ffffffef;box-shadow:0 25px 90px #66708544}
+.check{width:54px;height:54px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:#10131a;color:#fff;font-size:26px;font-weight:950}
+.card h2{margin:0;font-size:clamp(25px,6vw,42px);line-height:1.04;letter-spacing:-.045em}
+.card p{color:#687282;font-size:13px}
+.retry,.review-send{border:0;border-radius:10px;padding:13px 20px;background:#10131a;color:#fff;font:inherit;font-size:11px;font-weight:900;letter-spacing:.07em;cursor:pointer}
+.review{margin-top:24px;padding-top:22px;border-top:1px solid #e1e4e8;text-align:left}
+.review-title{display:block;text-align:center;font-size:18px;font-weight:950}
+textarea{width:100%;min-height:92px;resize:vertical;margin-top:9px;padding:12px;border:1px solid #c9ced7;border-radius:10px;background:#fff;color:#151922;font:inherit;font-size:13px;outline:0}
+.review-send{width:100%;margin-top:10px}
+.review-result{text-align:center;min-height:18px;font-size:11px;font-weight:900}
+.b{position:absolute;width:42px;height:54px;left:50%;bottom:-75px;border-radius:50% 50% 47% 47%;animation:blast 3s cubic-bezier(.18,.75,.2,1) forwards}
+.b:before{content:"";position:absolute;left:50%;bottom:-14px;width:1px;height:80px;background:#777c86aa}
+@keyframes blast{0%{transform:translate(0,0) scale(.55);opacity:0}10%{opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1);opacity:0}}
+.thanks{position:fixed;inset:0;z-index:50;display:grid;place-items:center;pointer-events:none;overflow:hidden}
+.thanks-title{position:relative;z-index:4;padding:18px 26px;border-radius:18px;background:#fffffff2;box-shadow:0 20px 70px #66708555;font-size:clamp(42px,10vw,84px);font-weight:1000;letter-spacing:-.06em;animation:pop .7s ease-out both}
+@keyframes pop{0%{transform:scale(.55);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
+@media(max-width:520px){.panel{padding:32px 24px}.zone{height:200px}}
+</style>
 </head>
 <body>
 <main class="page">
-  <section class="panel" aria-label="Authentication">
-    <div class="mark">AUTHENTICATION</div>
-    <h1>AUTHENTICATION</h1>
-    <p class="prompt">enter your id and password</p>
+<section class="panel">
+<div class="mark">AUTHENTICATION</div>
+<h1>AUTHENTICATION</h1>
+<p class="prompt">enter your id and password</p>
 
-    <form id="loginForm" autocomplete="off" novalidate>
-      <label for="userId">ID</label>
-      <input id="userId" type="text" placeholder="Enter your ID" required>
+<label for="id">ID</label>
+<input id="id" type="text" placeholder="Enter your ID" autocomplete="off">
 
-      <label for="userPassword">PASSWORD</label>
-      <input id="userPassword" type="password" placeholder="Enter your password" required>
+<label for="pw">PASSWORD</label>
+<input id="pw" type="password" placeholder="Enter your password" autocomplete="off">
 
-      <div class="button-zone" id="buttonZone">
-        <button id="loginButton" type="submit">LOGIN</button>
-      </div>
-
-      <div class="challenge-message" id="challengeMessage">KEEP TRYING!</div>
-      <p class="status" id="status">Fill in both fields to begin.</p>
-    </form>
-
-    <div class="note">FRONT-END DEMO · NO CREDENTIALS ARE STORED OR SENT</div>
-  </section>
+<div class="zone" id="zone">
+<button id="login" type="button">LOGIN</button>
+</div>
+<div class="challenge" id="challenge">KEEP TRYING!</div>
+<div class="status" id="status">Fill in both fields to begin.</div>
+<div class="note">FRONT-END DEMO · NO CREDENTIALS ARE STORED OR SENT</div>
+</section>
 </main>
 
-<div class="celebration" id="celebration" hidden aria-live="polite">
-  <div class="celebration-burst" id="celebrationBurst"></div>
-  <div class="success-card">
-    <div class="success-check">✓</div>
-    <h2>you are successfully logined<br>to this website with more patience</h2>
-    <p id="successDetail">Patience level: impressive.</p>
-    <button class="again" id="againButton" type="button">Wanna try again?</button>
-    <div class="review" id="reviewBox" hidden>
-      <strong>How was the website?</strong>
-      <p>Your review:</p>
-      <textarea id="reviewText" maxlength="300" placeholder="Tell us what you think..."></textarea>
-      <button class="submit-review" id="submitReview" type="button">SUBMIT REVIEW</button>
-      <p class="review-message" id="reviewMessage"></p>
-    </div>
-  </div>
+<div class="celebrate" id="celebrate" hidden>
+<div id="balloons"></div>
+<div class="card">
+<div class="check">✓</div>
+<h2 id="successTitle">you are successfully logined<br>to this website with more patience</h2>
+<p id="successInfo"></p>
+<button class="retry" id="retry" type="button">Wanna try again?</button>
+<div class="review" id="review" hidden>
+<strong class="review-title">How was the website?</strong>
+<textarea id="reviewText" maxlength="300" placeholder="Tell us what you think..."></textarea>
+<button class="review-send" id="reviewSend" type="button">SUBMIT REVIEW</button>
+<p class="review-result" id="reviewResult"></p>
+</div>
+</div>
 </div>
 
-<script src="app.js?v=20261008d"></script>
+<script>
+const id=document.getElementById("id");
+const pw=document.getElementById("pw");
+const zone=document.getElementById("zone");
+const login=document.getElementById("login");
+const challenge=document.getElementById("challenge");
+const status=document.getElementById("status");
+const celebrate=document.getElementById("celebrate");
+const balloons=document.getElementById("balloons");
+const successInfo=document.getElementById("successInfo");
+const retry=document.getElementById("retry");
+const review=document.getElementById("review");
+const reviewText=document.getElementById("reviewText");
+const reviewSend=document.getElementById("reviewSend");
+const reviewResult=document.getElementById("reviewResult");
+
+let round=1, dodges=0, active=false, completed=false, lastDodge=0;
+
+const targets={1:120,2:240};
+const encouragements=[
+  "KEEP TRYING!",
+  "YOU'RE GONNA LOGIN!",
+  "YOUR TRYING EFFORTS ARE NOT REACHABLE!"
+];
+
+function ready(){return id.value.trim()!==""&&pw.value.trim()!==""}
+
+function refresh(){
+  if(completed)return;
+  if(!ready()){
+    active=false;
+    challenge.textContent="KEEP TRYING!";
+    status.textContent=round===1?"Fill in both fields to begin.":"Fill in both fields to begin round 2.";
+    return;
+  }
+  active=true;
+  challenge.textContent="KEEP TRYING!";
+  status.textContent=round===1?"Round 1: move toward LOGIN.":"Round 2: move toward LOGIN.";
+}
+
+function farPoint(px,py){
+  const maxX=Math.max(0,zone.clientWidth-login.offsetWidth);
+  const maxY=Math.max(0,zone.clientHeight-login.offsetHeight);
+  const rect=zone.getBoundingClientRect();
+  const x=px-rect.left,y=py-rect.top;
+
+  const points=[
+    [0,0],[maxX,0],[0,maxY],[maxX,maxY],
+    [maxX*.08,maxY*.2],[maxX*.92,maxY*.2],
+    [maxX*.08,maxY*.8],[maxX*.92,maxY*.8]
+  ];
+
+  points.sort((a,b)=>{
+    const da=Math.hypot(a[0]+login.offsetWidth/2-x,a[1]+login.offsetHeight/2-y);
+    const db=Math.hypot(b[0]+login.offsetWidth/2-x,b[1]+login.offsetHeight/2-y);
+    return db-da;
+  });
+
+  return points[Math.floor(Math.random()*Math.min(2,points.length))];
+}
+
+function dodge(px,py){
+  if(!active||completed)return;
+  const now=performance.now();
+  if(now-lastDodge<320)return;
+  lastDodge=now;
+  dodges++;
+
+  const limit=targets[round];
+
+  if(dodges>=limit){
+    active=false;
+    login.style.left="0px";
+    login.style.top="14px";
+    challenge.textContent="YOU'RE GONNA LOGIN!";
+    status.textContent="The button is finally ready.";
+    return;
+  }
+
+  const [x,y]=farPoint(px,py);
+  login.style.left=x+"px";
+  login.style.top=y+"px";
+  challenge.textContent=encouragements[(dodges-1)%encouragements.length];
+  status.textContent=round===1
+    ?"Keep chasing LOGIN."
+    :"Round 2: keep chasing LOGIN.";
+}
+
+document.addEventListener("mousemove",e=>{
+  if(!active||completed)return;
+  const r=login.getBoundingClientRect();
+  const d=Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));
+  if(d<220)dodge(e.clientX,e.clientY);
+});
+
+login.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  if(!ready()){
+    status.textContent="Enter your ID and password first.";
+    return;
+  }
+  if(active)dodge(e.clientX,e.clientY);
+  else finishRound();
+});
+
+function finishRound(){
+  completed=true;
+  active=false;
+  login.style.pointerEvents="none";
+  successInfo.textContent=round===1
+    ?"Round 1 complete. Patience level: impressive."
+    :"Round 2 complete. Absolute patience.";
+  retry.hidden=round===2;
+  review.hidden=round!==2;
+  celebrate.hidden=false;
+  blast(false);
+}
+
+function resetRoundTwo(){
+  celebrate.hidden=true;
+  balloons.replaceChildren();
+  reviewText.value="";
+  reviewResult.textContent="";
+  reviewSend.hidden=false;
+  reviewText.disabled=false;
+  round=2;
+  dodges=0;
+  active=false;
+  completed=false;
+  lastDodge=0;
+  login.style.pointerEvents="auto";
+  login.style.left="0px";
+  login.style.top="14px";
+  id.value="";
+  pw.value="";
+  refresh();
+  id.focus();
+}
+
+retry.addEventListener("click",resetRoundTwo);
+
+reviewSend.addEventListener("click",()=>{
+  if(!reviewText.value.trim()){
+    reviewResult.textContent="Please write a review first.";
+    return;
+  }
+
+  reviewResult.textContent="YOUR REVIEW SENT SUCCESSFULLY";
+  reviewSend.hidden=true;
+  reviewText.disabled=true;
+  blast(true);
+});
+
+function blast(reviewBlast){
+  balloons.replaceChildren();
+
+  const colors=["#111827","#475569","#64748b","#94a3b8","#7c3aed","#06b6d4","#f59e0b","#ec4899"];
+  for(let i=0;i<42;i++){
+    const b=document.createElement("span");
+    b.className="b";
+    const angle=(Math.PI*2*i/42)+(Math.random()-.5)*.3;
+    const distance=260+Math.random()*560;
+    b.style.setProperty("--x",Math.cos(angle)*distance+"px");
+    b.style.setProperty("--y",(-Math.abs(Math.sin(angle)*distance)-110-Math.random()*220)+"px");
+    b.style.setProperty("--r",(Math.random()*100-50)+"deg");
+    b.style.background=colors[i%colors.length];
+    b.style.animationDelay=(Math.random()*.18)+"s";
+    balloons.appendChild(b);
+  }
+
+  if(reviewBlast){
+    const old=document.querySelector(".thanks");
+    if(old)old.remove();
+
+    const overlay=document.createElement("div");
+    overlay.className="thanks";
+    const title=document.createElement("div");
+    title.className="thanks-title";
+    title.textContent="THANK YOU";
+    overlay.appendChild(title);
+    document.body.appendChild(overlay);
+
+    for(let i=0;i<36;i++){
+      const b=document.createElement("span");
+      b.className="b";
+      const angle=(Math.PI*2*i/36)+(Math.random()-.5)*.3;
+      const distance=260+Math.random()*600;
+      b.style.setProperty("--x",Math.cos(angle)*distance+"px");
+      b.style.setProperty("--y",Math.sin(angle)*distance-60-Math.random()*220+"px");
+      b.style.setProperty("--r",(Math.random()*100-50)+"deg");
+      b.style.background=colors[i%colors.length];
+      b.style.animationDelay=(Math.random()*.25)+"s";
+      overlay.appendChild(b);
+    }
+
+    setTimeout(()=>overlay.remove(),3600);
+  }
+}
+
+[id,pw].forEach(el=>el.addEventListener("input",refresh));
+refresh();
+</script>
 </body>
 </html>
