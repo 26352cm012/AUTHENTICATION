@@ -241,12 +241,59 @@ againButton.addEventListener("click",resetForRoundTwo);
 
 submitReview.addEventListener("click",()=>{
   const review=reviewText.value.trim();
-  reviewMessage.textContent=review
-    ?"Thanks for the review! 🎈"
-    :"Please write a review first.";
-  if(review){
-    submitReview.disabled=true;
+
+  if(!review){
+    reviewMessage.textContent="Please write a review first.";
+    reviewMessage.classList.remove("thanks");
+    return;
   }
+
+  reviewMessage.textContent="YOUR REVIEW SENT SUCCESSFULLY";
+  reviewMessage.classList.add("thanks");
+  submitReview.hidden=true;
+  reviewText.disabled=true;
+  createThankYouBlast();
+});
+
+function createThankYouBlast(){
+  const old=document.querySelector(".thank-you-overlay");
+  if(old)old.remove();
+
+  const overlay=document.createElement("div");
+  overlay.className="thank-you-overlay";
+  overlay.setAttribute("aria-live","polite");
+
+  const title=document.createElement("div");
+  title.className="thank-you-title";
+  title.textContent="THANK YOU";
+  overlay.appendChild(title);
+
+  document.body.appendChild(overlay);
+
+  for(let i=0;i<44;i++){
+    const balloon=document.createElement("span");
+    balloon.className="balloon thank-balloon";
+
+    const angle=(Math.PI*2*i/44)+(Math.random()-.5)*.3;
+    const distance=240+Math.random()*600;
+    const x=Math.cos(angle)*distance;
+    const y=Math.sin(angle)*distance-40-Math.random()*220;
+    const rotation=(Math.random()*100)-50;
+
+    balloon.style.setProperty("--x",x+"px");
+    balloon.style.setProperty("--y",y+"px");
+    balloon.style.setProperty("--r",rotation+"deg");
+
+    const colors=["#111827","#475569","#64748b","#94a3b8","#7c3aed","#06b6d4","#f59e0b","#ec4899"];
+    const color=colors[i%colors.length];
+    balloon.style.background=color;
+    balloon.style.color=color;
+    balloon.style.animationDelay=(Math.random()*.25)+"s";
+
+    overlay.appendChild(balloon);
+  }
+
+  setTimeout(()=>overlay.remove(),3600);
 });
 
 setReadyState();
