@@ -94,7 +94,6 @@ function moveButton(pointerX,pointerY){
   const [x,y]=getFarDestination(pointerX,pointerY);
   button.style.left=x+"px";
   button.style.top=y+"px";
-
   status.textContent=round===1
     ?`Patience check: ${dodges}/${target}`
     :`Round 2 patience: ${dodges}/${target}`;
@@ -105,9 +104,14 @@ function showSuccess(){
   active=false;
   button.style.pointerEvents="none";
   status.textContent="Success.";
-  successDetail.textContent=round===1
-    ?"Round 1 complete. Patience level: impressive."
-    :"Round 2 complete. Absolute patience.";
+
+  const finalRound=round===2;
+  successDetail.textContent=finalRound
+    ?"Round 2 complete. Absolute patience."
+    :"Round 1 complete. Patience level: impressive.";
+
+  // Retry is offered only after Round 1.
+  againButton.hidden=finalRound;
   celebration.hidden=false;
   createBalloonBlast();
 }
@@ -115,11 +119,13 @@ function showSuccess(){
 function createBalloonBlast(){
   burst.replaceChildren();
 
-  const balloonCount=34;
-  for(let i=0;i<balloonCount;i++){
+  const colors=["#111827","#475569","#64748b","#94a3b8","#cbd5e1","#7c3aed","#06b6d4","#f59e0b"];
+
+  for(let i=0;i<34;i++){
     const balloon=document.createElement("span");
     balloon.className="balloon";
-    const angle=(Math.PI*2*i/balloonCount)+(Math.random()-.5)*.25;
+
+    const angle=(Math.PI*2*i/34)+(Math.random()-.5)*.25;
     const distance=260+Math.random()*520;
     const x=Math.cos(angle)*distance;
     const y=-Math.abs(Math.sin(angle)*distance)-120-Math.random()*220;
@@ -129,12 +135,11 @@ function createBalloonBlast(){
     balloon.style.setProperty("--y",y+"px");
     balloon.style.setProperty("--r",rotation+"deg");
 
-    const colors=["#111827","#475569","#64748b","#94a3b8","#cbd5e1","#7c3aed","#06b6d4","#f59e0b"];
     const color=colors[i%colors.length];
     balloon.style.background=color;
     balloon.style.color=color;
-
     balloon.style.animationDelay=(Math.random()*.18)+"s";
+
     burst.appendChild(balloon);
   }
 
@@ -143,9 +148,11 @@ function createBalloonBlast(){
     spark.className="spark";
     const angle=Math.random()*Math.PI*2;
     const distance=120+Math.random()*260;
+
     spark.style.setProperty("--sx",Math.cos(angle)*distance+"px");
     spark.style.setProperty("--sy",Math.sin(angle)*distance+"px");
     spark.style.animationDelay=(Math.random()*.15)+"s";
+
     burst.appendChild(spark);
   }
 }
@@ -153,14 +160,18 @@ function createBalloonBlast(){
 function resetForRoundTwo(){
   celebration.hidden=true;
   burst.replaceChildren();
+  againButton.hidden=true;
+
   round=2;
   dodges=0;
   lastMove=0;
   completed=false;
   active=false;
+
   button.style.pointerEvents="auto";
   button.style.left="0px";
   button.style.top="14px";
+
   userId.value="";
   userPassword.value="";
   status.textContent="Round 2: fill in both fields.";
@@ -190,9 +201,7 @@ button.addEventListener("pointerdown",(event)=>{
   event.preventDefault();
   event.stopPropagation();
 
-  if(round===1&&fieldsReady()&&!active){
-    showSuccess();
-  }else if(round===2&&fieldsReady()&&!active){
+  if(fieldsReady()&&!active){
     showSuccess();
   }else if(active){
     moveButton(event.clientX,event.clientY);
