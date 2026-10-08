@@ -12,9 +12,10 @@ let lastMove=0;
 let active=false;
 let completed=false;
 
-// Slower reaction, but each dodge travels a long distance.
-const DODGE_DELAY=150;
-const DODGE_TRIGGER=185;
+// Deliberately slower reaction, but with a much larger dodge area.
+const DODGE_DELAY=110;
+const DODGE_TRIGGER=270;
+const FIRST_ROUND_DODGES=12;
 
 const firstRoundMessages=[
   "Try to catch the login button.",
@@ -23,6 +24,11 @@ const firstRoundMessages=[
   "Almost.",
   "Keep going.",
   "You're getting closer.",
+  "Not yet.",
+  "Still chasing?",
+  "That was close.",
+  "One more try.",
+  "Almost there.",
   "Okay... you can click it now."
 ];
 
@@ -35,24 +41,17 @@ function setReadyState(){
   active=fieldsReady();
 
   if(round===1){
-    if(active){
-      status.textContent="Now try to catch LOGIN.";
-      status.style.color="#687282";
-    }else{
-      status.textContent="Fill in both fields to begin.";
-    }
+    status.textContent=active
+      ?"Now try to catch LOGIN."
+      :"Fill in both fields to begin.";
   }else{
-    if(active){
-      status.textContent="Round 2. This one won't be easy.";
-      status.style.color="#687282";
-    }else{
-      status.textContent="Fill in both fields to begin round 2.";
-    }
+    status.textContent=active
+      ?"Round 2. Catch it if you can."
+      :"Fill in both fields to begin round 2.";
   }
+  status.style.color="#687282";
 }
 
-// Pick the destination farthest away from the pointer/current position.
-// This makes each jump large instead of twitchy.
 function getFarDestination(pointerX,pointerY){
   const maxX=Math.max(0,zone.clientWidth-button.offsetWidth);
   const maxY=Math.max(0,zone.clientHeight-button.offsetHeight);
@@ -63,14 +62,19 @@ function getFarDestination(pointerX,pointerY){
 
   const candidates=[
     [0,0],[maxX,0],[0,maxY],[maxX,maxY],
-    [maxX/2,0],[maxX/2,maxY],[0,maxY/2],[maxX,maxY/2]
+    [maxX*.15,maxY*.15],[maxX*.85,maxY*.15],
+    [maxX*.15,maxY*.85],[maxX*.85,maxY*.85],
+    [maxX*.5,0],[maxX*.5,maxY],[0,maxY*.5],[maxX,maxY*.5]
   ];
 
   let best=candidates[0];
   let bestDistance=-1;
 
   for(const [x,y] of candidates){
-    const distance=Math.hypot(x+button.offsetWidth/2-px,y+button.offsetHeight/2-py);
+    const distance=Math.hypot(
+      x+button.offsetWidth/2-px,
+      y+button.offsetHeight/2-py
+    );
     if(distance>bestDistance){
       best=[x,y];
       bestDistance=distance;
@@ -81,26 +85,25 @@ function getFarDestination(pointerX,pointerY){
 }
 
 function moveButton(pointerX,pointerY){
-  if(!active || completed)return;
+  if(!active||completed)return;
 
   const now=performance.now();
   if(now-lastMove<DODGE_DELAY)return;
   lastMove=now;
   dodges++;
 
-  // In round 1, after several fair dodges, the player gets a chance to click.
-  if(round===1 && dodges>=7){
+  // First round becomes clickable only after a substantial number of dodges.
+  if(round===1&&dodges>FIRST_ROUND_DODGES){
     active=false;
     button.style.left="0px";
     button.style.top="14px";
     button.style.transform="scale(1)";
-    status.textContent=firstRoundMessages[firstRoundMessages.length-1];
+    status.textContent="Okay... you can click it now.";
     status.style.color="#151922";
     return;
   }
 
   const [x,y]=getFarDestination(pointerX,pointerY);
-
   button.style.left=x+"px";
   button.style.top=y+"px";
   button.style.transform="scale(1)";
@@ -108,54 +111,12 @@ function moveButton(pointerX,pointerY){
   if(round===1){
     status.textContent=firstRoundMessages[Math.min(dodges,firstRoundMessages.length-2)];
   }else{
-    status.textContent="Nope. Round 2 is impossible.";
+    status.textContent="Nope. Round 2 keeps escaping.";
   }
 }
 
-document.addEventListener("mousemove",(event)=>{
-  if(!active || completed)return;
-
-  const r=button.getBoundingClientRect();
-  const distance=Math.hypot(
-    event.clientX-(r.left+r.width/2),
-    event.clientY-(r.top+r.height/2)
-  );
-
-  if(distance<DODGE_TRIGGER){
-    moveButton(event.clientX,event.clientY);
-  }
-});
-
-button.addEventListener("mouseenter",(event)=>{
-  moveButton(event.clientX,event.clientY);
-});
-
-button.addEventListener("pointerdown",(event)=>{
-  event.preventDefault();
-  event.stopPropagation();
-
-  if(round===1 && fieldsReady() && !active){
-    successfulLogin();
-    return;
-  }
-
-  if(round===2 && fieldsReady()){
-    moveButton(event.clientX,event.clientY);
-  }
-});
-
-form.addEventListener("submit",(event)=>{
-  event.preventDefault();
-
-  if(round===1 && fieldsReady() && !active){
-    successfulLogin();
-  }else if(round===2 && fieldsReady()){
-    moveButton();
-  }
-});
-
 function successfulLogin(){
-  if(round!==1 || completed)return;
+  if(round!==1||completed)return;
 
   completed=true;
   active=false;
@@ -169,6 +130,49 @@ function successfulLogin(){
   retryButton.hidden=false;
 }
 
+document.addEventListener("mousemove",(event)=>{
+  if(!active||completed)return;
+
+  const r=button.getBoundingClientRect();
+  const distance=Math.hypot(
+    event.clientX-(r.left+r.width/2),
+    event.clientY-(r.top+r.height/2)
+  );
+
+  // Detect the pointer well before it reaches the button.
+  if(distance<DODGE_TRIGGER){
+    moveButton(event.clientX,event.clientY);
+  }
+});
+
+button.addEventListener("mouseenter",(event)=>{
+  moveButton(event.clientX,event.clientY);
+});
+
+button.addEventListener("pointerdown",(event)=>{
+  event.preventDefault();
+  event.stopPropagation();
+
+  if(round===1&&fieldsReady()&&!active){
+    successfulLogin();
+    return;
+  }
+
+  if(round===2&&fieldsReady()){
+    moveButton(event.clientX,event.clientY);
+  }
+});
+
+form.addEventListener("submit",(event)=>{
+  event.preventDefault();
+
+  if(round===1&&fieldsReady()&&!active){
+    successfulLogin();
+  }else if(round===2&&fieldsReady()){
+    moveButton();
+  }
+});
+
 [userId,userPassword].forEach(input=>{
   input.addEventListener("input",setReadyState);
 });
@@ -179,12 +183,10 @@ retryButton.addEventListener("click",()=>{
   completed=false;
   active=false;
   retryButton.hidden=true;
-
   button.style.pointerEvents="auto";
   button.style.left="0px";
   button.style.top="14px";
   button.style.transform="scale(1)";
-
   form.reset();
   status.textContent="Round 2: fill in both fields.";
   status.style.color="#687282";
