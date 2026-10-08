@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUTHENTICATION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <section class="panel" aria-label="Authentication">
+    <div class="mark">AUTHENTICATION</div>
+    <h1>AUTHENTICATION</h1>
+    <p class="prompt">enter your id and password</p>
+
+    <form id="loginForm" autocomplete="off" novalidate>
+      <label for="userId">ID</label>
+      <input id="userId" type="text" placeholder="Enter your ID" required>
+
+      <label for="userPassword">PASSWORD</label>
+      <input id="userPassword" type="password" placeholder="Enter your password" required>
+
+      <div class="button-zone" id="buttonZone">
+        <button id="loginButton" type="submit">LOGIN</button>
+      </div>
+
+      <p class="status" id="status">Try to catch the login button.</p>
+    </form>
+
+    <div class="note">FRONT-END DEMO · NO CREDENTIALS ARE STORED OR SENT</div>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
