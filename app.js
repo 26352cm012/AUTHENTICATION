@@ -143,7 +143,7 @@ function moveButton(pointerX=null,pointerY=null){
     "YOU'RE GONNA LOGIN!",
     "YOUR TRYING EFFORTS ARE NOT REACHABLE!"
   ];
-  status.textContent=encouragements[(dodges-1)%encouragements.length];
+  challengeMessage.textContent=encouragements[(dodges-1)%encouragements.length];
 }
 
 function showSuccess(){
