@@ -18,12 +18,10 @@ let round=1;
 let dodges=0;
 let active=false;
 let completed=false;
-let moveTimer=null;
 let lastMove=0;
 
 const FIRST_ROUND_DODGES=120;
 const SECOND_ROUND_DODGES=240;
-const AUTO_MOVE_DELAY=720;
 const POINTER_MOVE_DELAY=500;
 const POINTER_TRIGGER=240;
 
@@ -39,7 +37,6 @@ function setReadyState(){
   if(completed)return;
 
   if(!fieldsReady()){
-    stopAutoMove();
     active=false;
     challengeMessage.textContent="KEEP TRYING!";
     status.textContent=round===1
@@ -49,35 +46,13 @@ function setReadyState(){
     return;
   }
 
+  // The button stays still until the pointer approaches it.
   active=true;
   challengeMessage.textContent="KEEP TRYING!";
   status.textContent=round===1
-    ?"Round 1 started — try to catch LOGIN."
-    :"Round 2 started — this is the patience test.";
+    ?"Round 1 started — move toward LOGIN."
+    :"Round 2 started — catch LOGIN if you can.";
   status.style.color="#687282";
-  startAutoMove();
-}
-
-function startAutoMove(){
-  stopAutoMove();
-  if(!active||completed)return;
-
-  // The button starts moving automatically as soon as both fields are filled.
-  moveTimer=setInterval(()=>{
-    if(active&&!completed)moveButton();
-  },AUTO_MOVE_DELAY);
-
-  // Give it an immediate first jump.
-  setTimeout(()=>{
-    if(active&&!completed)moveButton();
-  },220);
-}
-
-function stopAutoMove(){
-  if(moveTimer){
-    clearInterval(moveTimer);
-    moveTimer=null;
-  }
 }
 
 function getFarDestination(pointerX=null,pointerY=null){
@@ -125,7 +100,6 @@ function moveButton(pointerX=null,pointerY=null){
 
   if(dodges>target){
     active=false;
-    stopAutoMove();
     button.style.left="0px";
     button.style.top="14px";
     challengeMessage.textContent="YOU'RE GONNA LOGIN!";
@@ -149,7 +123,6 @@ function moveButton(pointerX=null,pointerY=null){
 function showSuccess(){
   completed=true;
   active=false;
-  stopAutoMove();
 
   button.style.pointerEvents="none";
   button.style.left="0px";
