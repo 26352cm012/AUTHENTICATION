@@ -3,64 +3,72 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AUTHENTICATION</title>
+<title>FIREWALL HEIST</title>
 <style>
+:root{color-scheme:dark;--bg:#050907;--panel:#0a120f;--line:#1a3c2c;--green:#55ff9b;--muted:#83a996;--red:#ff4e67;--amber:#f8d66d}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{min-height:100vh;background:linear-gradient(135deg,#eef1f5,#dce2ea);color:#11151c;overflow:hidden}
-.page{min-height:100vh;display:grid;place-items:center;padding:24px}
-.panel{width:min(480px,100%);padding:44px;border:1px solid #fff;border-radius:24px;background:#ffffffdc;box-shadow:0 28px 80px #6670853b;backdrop-filter:blur(18px)}
-.mark{font-size:10px;font-weight:900;letter-spacing:.24em;color:#7b8493;margin-bottom:30px}
-h1{margin:0;font-size:clamp(34px,8vw,50px);line-height:.98;letter-spacing:-.055em}
-.prompt{margin:14px 0 30px;font-size:13px;color:#687282}
-label{display:block;margin:17px 0 8px;font-size:11px;font-weight:850;letter-spacing:.14em;color:#4d5665}
-input{width:100%;height:52px;padding:0 15px;border:1px solid #c9ced7;border-radius:11px;background:#fff;color:#151922;outline:0;font:inherit}
-input:focus{border-color:#697383;box-shadow:0 0 0 4px #10131a0b}
-.zone{position:relative;height:220px;margin-top:24px}
-#login{position:absolute;left:0;top:14px;padding:14px 22px;border:0;border-radius:10px;background:#10131a;color:#fff;font:inherit;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;transition:left .28s ease-out,top .28s ease-out;z-index:3}
-.challenge{min-height:52px;display:grid;place-items:center;padding:10px 12px;border:1px solid #d5dae2;border-radius:10px;background:#f8fafc;text-align:center;font-size:14px;font-weight:950;line-height:1.2}
-.status{text-align:center;min-height:18px;margin:9px 0 0;color:#8a92a0;font-size:10px}
-.note{margin-top:25px;padding-top:15px;border-top:1px solid #dce0e6;color:#8a92a0;font-size:8px;letter-spacing:.15em;line-height:1.5}
-.celebrate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#eef1f5ef;backdrop-filter:blur(7px);overflow:hidden}
+html,body{margin:0;min-height:100%;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+body{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#103522 0,#07130d 38%,#030605 100%);color:#d8ffe7;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,#00000025 4px);opacity:.45}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background-image:linear-gradient(#1eff8a0b 1px,transparent 1px),linear-gradient(90deg,#1eff8a0b 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,#000,transparent 90%)}
+.page{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:24px}
+.panel{position:relative;width:min(540px,100%);padding:clamp(25px,6vw,44px);border:1px solid #24583c;border-radius:5px;background:linear-gradient(145deg,#0c1912f5,#050b08f5);box-shadow:0 0 0 5px #0b1c12,0 0 45px #00ff7830,inset 0 0 35px #00ff7808}
+.panel:before,.panel:after{content:"";position:absolute;width:17px;height:17px;border-color:var(--green);border-style:solid;pointer-events:none}
+.panel:before{top:-4px;left:-4px;border-width:2px 0 0 2px}.panel:after{right:-4px;bottom:-4px;border-width:0 2px 2px 0}
+.mark{font-size:10px;font-weight:900;letter-spacing:.22em;color:var(--green);margin-bottom:25px}
+h1{margin:0;color:#e4ffed;font-size:clamp(32px,8vw,48px);line-height:.98;letter-spacing:-.055em;text-shadow:0 0 18px #35ff8a55}
+.prompt{margin:14px 0 28px;font-size:12px;color:var(--muted);line-height:1.7}
+label{display:block;margin:17px 0 8px;font-size:10px;font-weight:850;letter-spacing:.16em;color:#75c99b}
+input{width:100%;height:50px;padding:0 14px;border:1px solid #24583c;border-radius:3px;background:#030906;color:var(--green);outline:0;font:inherit;font-size:13px}
+input::placeholder{color:#496958}
+input:focus{border-color:var(--green);box-shadow:0 0 0 2px #55ff9b18,0 0 18px #00ff7820}
+.zone{position:relative;height:220px;margin-top:22px;border:1px dashed #1d4a31;background:#07110b99;overflow:hidden}
+.zone:before{content:"TARGET ZONE // FIREWALL ACTIVE";position:absolute;top:8px;left:10px;font-size:8px;letter-spacing:.13em;color:#426c52}
+#login{position:absolute;left:10px;top:34px;padding:13px 16px;border:1px solid var(--green);border-radius:2px;background:#0c2a19;color:var(--green);font:inherit;font-size:11px;font-weight:950;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 18px #00ff7825;transition:left .2s ease-out,top .2s ease-out,background .2s}
+#login:hover{background:#16472b}
+.challenge{min-height:58px;display:grid;place-items:center;padding:12px;border:1px solid #24583c;border-left:3px solid var(--red);background:#060d09;text-align:center;color:#b8ffd0;font-size:clamp(12px,3vw,14px);font-weight:950;line-height:1.5;letter-spacing:.03em}
+.status{text-align:center;min-height:28px;margin:10px 0 0;color:#79a88c;font-size:10px;line-height:1.6}
+.note{margin-top:23px;padding-top:14px;border-top:1px solid #183a27;color:#62806d;font-size:8px;letter-spacing:.1em;line-height:1.7}
+.celebrate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#020805f2;backdrop-filter:blur(7px);overflow:hidden}
 .celebrate[hidden]{display:none}
-.card{position:relative;z-index:5;width:min(610px,calc(100% - 34px));padding:40px 32px;text-align:center;border:1px solid #fff;border-radius:24px;background:#ffffffef;box-shadow:0 25px 90px #66708544}
-.check{width:54px;height:54px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:#10131a;color:#fff;font-size:26px;font-weight:950}
-.card h2{margin:0;font-size:clamp(25px,6vw,42px);line-height:1.04;letter-spacing:-.045em}
-.card p{color:#687282;font-size:13px}
-.retry,.review-send{border:0;border-radius:10px;padding:13px 20px;background:#10131a;color:#fff;font:inherit;font-size:11px;font-weight:900;letter-spacing:.07em;cursor:pointer}
-.review{margin-top:24px;padding-top:22px;border-top:1px solid #e1e4e8;text-align:left}
-.review-title{display:block;text-align:center;font-size:18px;font-weight:950}
-textarea{width:100%;min-height:92px;resize:vertical;margin-top:9px;padding:12px;border:1px solid #c9ced7;border-radius:10px;background:#fff;color:#151922;font:inherit;font-size:13px;outline:0}
+.card{position:relative;z-index:5;width:min(610px,calc(100% - 34px));padding:clamp(26px,6vw,40px) 26px;text-align:center;border:1px solid #286342;border-radius:4px;background:#07130cf5;box-shadow:0 0 55px #00ff7820}
+.check{width:54px;height:54px;margin:0 auto 18px;display:grid;place-items:center;border:1px solid var(--green);background:#0a2b19;color:var(--green);font-size:26px;font-weight:950}
+.card h2{margin:0;color:#dffff0;font-size:clamp(25px,6vw,42px);line-height:1.1;letter-spacing:-.035em;text-shadow:0 0 15px #35ff8a30}
+.card p{color:#8ebda0;font-size:12px;line-height:1.7}
+.retry,.review-send{border:1px solid var(--green);border-radius:2px;padding:13px 20px;background:#0d2c1a;color:var(--green);font:inherit;font-size:11px;font-weight:900;letter-spacing:.07em;cursor:pointer}
+.review{margin-top:24px;padding-top:22px;border-top:1px solid #1c432c;text-align:left}
+.review-title{display:block;text-align:center;font-size:16px;font-weight:950;color:var(--green)}
+textarea{width:100%;min-height:92px;resize:vertical;margin-top:9px;padding:12px;border:1px solid #24583c;border-radius:3px;background:#030906;color:#d8ffe7;font:inherit;font-size:12px;outline:0}
 .review-send{width:100%;margin-top:10px}
-.review-result{text-align:center;min-height:18px;font-size:11px;font-weight:900}
-.b{position:absolute;width:42px;height:54px;left:50%;bottom:-75px;border-radius:50% 50% 47% 47%;animation:blast 3s cubic-bezier(.18,.75,.2,1) forwards}
-.b:before{content:"";position:absolute;left:50%;bottom:-14px;width:1px;height:80px;background:#777c86aa}
+.review-result{text-align:center;min-height:18px;font-size:11px;font-weight:900;color:var(--green)}
+.b{position:absolute;width:18px;height:24px;left:50%;bottom:-75px;border:1px solid var(--green);border-radius:2px;animation:blast 3s cubic-bezier(.18,.75,.2,1) forwards;box-shadow:0 0 12px #00ff7855}
+.b:before{content:"";position:absolute;left:50%;bottom:-14px;width:1px;height:80px;background:#55ff9b66}
 @keyframes blast{0%{transform:translate(0,0) scale(.55);opacity:0}10%{opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1);opacity:0}}
 .thanks{position:fixed;inset:0;z-index:50;display:grid;place-items:center;pointer-events:none;overflow:hidden}
-.thanks-title{position:relative;z-index:4;padding:18px 26px;border-radius:18px;background:#fffffff2;box-shadow:0 20px 70px #66708555;font-size:clamp(42px,10vw,84px);font-weight:1000;letter-spacing:-.06em;animation:pop .7s ease-out both}
+.thanks-title{position:relative;z-index:4;padding:18px 26px;border:1px solid var(--green);background:#041008f5;color:var(--green);box-shadow:0 0 40px #00ff7855;font-size:clamp(35px,9vw,70px);font-weight:1000;letter-spacing:-.04em;animation:pop .7s ease-out both}
 @keyframes pop{0%{transform:scale(.55);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
-@media(max-width:520px){.panel{padding:32px 24px}.zone{height:200px}}
+@media(max-width:520px){.zone{height:200px}}
 </style>
 </head>
 <body>
 <main class="page">
 <section class="panel">
-<div class="mark">AUTHENTICATION</div>
-<h1>AUTHENTICATION</h1>
-<p class="prompt">enter your id and password</p>
+<div class="mark">[ SECURITY OPERATIONS // TERMINAL 07 ]</div>
+<h1>FIREWALL<br>HEIST</h1>
+<p class="prompt">BREACH THE GATE. OUTRUN THE FIREWALL.<br>Every attempt triggers a countermeasure. Can you get through?</p>
 
-<label for="id">ID</label>
-<input id="id" type="text" placeholder="Enter your ID" autocomplete="off">
+<label for="id">OPERATOR ID</label>
+<input id="id" type="text" placeholder="Enter codename..." autocomplete="off">
 
-<label for="pw">PASSWORD</label>
-<input id="pw" type="password" placeholder="Enter your password" autocomplete="off">
+<label for="pw">ACCESS KEY</label>
+<input id="pw" type="password" placeholder="Enter fake access key..." autocomplete="off">
 
 <div class="zone" id="zone">
-<button id="login" type="button">LOGIN</button>
+<button id="login" type="button">BYPASS FIREWALL</button>
 </div>
-<div class="challenge" id="challenge">KEEP TRYING!</div>
-<div class="status" id="status">Fill in both fields to begin.</div>
-<div class="note">FRONT-END DEMO · NO CREDENTIALS ARE STORED OR SENT</div>
+<div class="challenge" id="challenge">[ ALERT ] INTRUSION DETECTED — TRY AGAIN</div>
+<div class="status" id="status">SYSTEM STATUS: LOCKED // Enter any demo values to start.</div>
+<div class="note">SIMULATION ONLY // NO REAL HACKING // INPUTS ARE NOT STORED OR SENT</div>
 </section>
 </main>
 
@@ -68,12 +76,12 @@ textarea{width:100%;min-height:92px;resize:vertical;margin-top:9px;padding:12px;
 <div id="balloons"></div>
 <div class="card">
 <div class="check">✓</div>
-<h2 id="successTitle">you are successfully logined<br>to this website with more patience</h2>
+<h2 id="successTitle">FIREWALL<br>BREACHED</h2>
 <p id="successInfo"></p>
 <button class="retry" id="retry" type="button">Wanna try again?</button>
 <div class="review" id="review" hidden>
-<strong class="review-title">How was the website?</strong>
-<textarea id="reviewText" maxlength="300" placeholder="Tell us what you think..."></textarea>
+<strong class="review-title">HEIST DEBRIEF // RATE THIS SIMULATION</strong>
+<textarea id="reviewText" maxlength="300" placeholder="Leave your debrief, operator..."></textarea>
 <button class="review-send" id="reviewSend" type="button">SUBMIT REVIEW</button>
 <p class="review-result" id="reviewResult"></p>
 </div>
@@ -102,7 +110,7 @@ let active=false;
 let completed=false;
 let lastDodgeTime=0;
 
-const LIMITS={1:40,2:150};;;
+const LIMITS={1:40,2:150};
 const DODGE_COOLDOWN=600;
 const DODGE_RADIUS=260;
 
@@ -115,18 +123,18 @@ function updateReadyState(){
 
   if(!ready()){
     active=false;
-    challenge.textContent="KEEP TRYING!";
+    challenge.textContent="[ ALERT ] INTRUSION DETECTED — TRY AGAIN";
     status.textContent=round===1
-      ?"Fill in both fields to begin."
-      :"Fill in both fields to begin round 2.";
+      ?"Enter any demo values to initiate breach."
+       :"Enter demo values to initiate breach round 2.";
     return;
   }
 
   active=true;
   challenge.textContent=round===1
     ?"KEEP TRYING!"
-    :"ROUND 2 — KEEP TRYING!";
-  status.textContent="Move your pointer toward LOGIN.";
+    :"ROUND 2 // SECURITY ESCALATED";
+  status.textContent="SYSTEM STATUS: ACTIVE // Approach the bypass control.";
 }
 
 function getFarPosition(pointerX,pointerY){
@@ -174,8 +182,8 @@ function dodge(pointerX,pointerY){
     active=false;
     login.style.left="0px";
     login.style.top="14px";
-    challenge.textContent="YOU'RE GONNA LOGIN!";
-    status.textContent="Okay... LOGIN is finally yours.";
+    challenge.textContent="BYPASS AVAILABLE // CLICK TO BREACH";
+    status.textContent="SYSTEM STATUS: TEMPORARY ACCESS GRANTED.";
     return;
   }
 
@@ -184,21 +192,21 @@ function dodge(pointerX,pointerY){
   login.style.top=y+"px";
 
   const messages=[
-    "KEEP TRYING!",
-    "YOU'RE GONNA LOGIN!",
-    "YOUR TRYING EFFORTS ARE NOT REACHABLE!",
-    "NICE TRY!",
-    "NOT SO FAST!",
-    "THE BUTTON HAS OTHER PLANS!",
-    "PATIENCE LEVEL: RISING!",
-    "YOU'VE GOT THIS!",
-    "SO CLOSE... MAYBE!",
-    "KEEP THAT POINTER MOVING!",
-    "LOGIN IS PLAYING HIDE-AND-SEEK!",
-    "DON'T GIVE UP NOW!",
-    "ONE MORE TRY!",
-    "YOUR DETERMINATION IS IMPRESSIVE!",
-    "THE FINISH LINE IS GETTING CLOSER!"
+    "FIREWALL SAYS: ACCESS DENIED.",
+    "TRACE ROUTE FAILED. TRY AGAIN.",
+    "INTRUSION DETECTED // NICE TRY.",
+    "SECURITY PATCH DEPLOYED!",
+    "YOUR BYPASS WAS REJECTED.",
+    "THE GATE JUST LOCKED AGAIN.",
+    "COUNTERMEASURE ACTIVATED.",
+    "PACKET LOST. YOUR TURN.",
+    "AUTH TOKEN EXPIRED. AGAIN.",
+    "YOU ALMOST HAD ROOT ACCESS.",
+    "FIREWALL: 1 // YOU: 0",
+    "SUSPICIOUS ACTIVITY DETECTED.",
+    "RE-ROUTING YOUR ATTEMPT...",
+    "ACCESS DENIED. KEEP BREACHING.",
+    "THE SYSTEM IS STILL WATCHING."
   ];
   challenge.textContent=messages[Math.floor((dodges-1)/4)%messages.length];
 }
@@ -228,7 +236,7 @@ login.addEventListener("pointerdown",e=>{
   e.stopPropagation();
 
   if(!ready()){
-    status.textContent="Enter your ID and password first.";
+    status.textContent="ACCESS DENIED // Enter both demo fields first.";
     return;
   }
 
@@ -244,8 +252,8 @@ function finishRound(){
   active=false;
   login.style.pointerEvents="none";
   successInfo.textContent=round===1
-    ?"Round 1 complete. Patience level: impressive."
-    :"Round 2 complete. Absolute patience.";
+    ?"SECURITY GATE 01 CLEARED // The firewall is adapting."
+    :"HEIST COMPLETE // You outlasted the firewall.";
 
   const finalRound=round===2;
   retry.hidden=finalRound;
@@ -304,7 +312,7 @@ function resetRoundTwo(){
   reviewText.disabled=false;
 
   challenge.textContent="KEEP TRYING!";
-  status.textContent="Round 2: fill in both fields.";
+  status.textContent="ROUND 2 // Enter demo values. Security has escalated.";
   idInput.focus();
 }
 
@@ -316,7 +324,7 @@ reviewSend.addEventListener("click",()=>{
     return;
   }
 
-  reviewResult.textContent="YOUR REVIEW SENT SUCCESSFULLY";
+  reviewResult.textContent="DEBRIEF LOGGED LOCALLY // THANK YOU, OPERATOR";
   reviewSend.hidden=true;
   reviewText.disabled=true;
   createThankYouBlast();
