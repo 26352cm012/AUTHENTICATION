@@ -103,7 +103,7 @@ let completed=false;
 let lastDodgeTime=0;
 
 const LIMITS={1:40,2:150};;;
-const DODGE_COOLDOWN=260;
+const DODGE_COOLDOWN=600;
 const DODGE_RADIUS=260;
 
 function ready(){
@@ -200,7 +200,7 @@ function dodge(pointerX,pointerY){
     "YOUR DETERMINATION IS IMPRESSIVE!",
     "THE FINISH LINE IS GETTING CLOSER!"
   ];
-  challenge.textContent=messages[(dodges-1)%messages.length];
+  challenge.textContent=messages[Math.floor((dodges-1)/2)%messages.length];
 }
 
 function checkPointer(pointerX,pointerY){
